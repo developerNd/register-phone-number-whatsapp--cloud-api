@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input {
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4f46e5;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button:hover {
+            background-color: #4338ca;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .error {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        #loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            animation: spin 2s linear infinite;
+            margin-left: 5px;
+            }
+
+            @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WhatsApp Registration</h1>
+        <form id="registerForm">
+            <label for="phoneNumberId">Phone Number ID</label>
+            <input type="text" id="phoneNumberId" required>
+            
+            <label for="token">Bearer Token</label>
+            <input type="text" id="token" required>
+            
+            <label for="pin">PIN</label>
+            <input type="text" id="pin" required>
+            
+            <button type="submit" id="registerButton">
+                Register
+                <span id="loader" style="display: none;"></span>
+            </button>
+        </form>
+        <div id="response" style="display: none;"></div>
+    </div>
+
+    <script>
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const phoneNumberId = document.getElementById('phoneNumberId').value;
+  const token = document.getElementById('token').value;
+  const pin = document.getElementById('pin').value;
+  const responseDiv = document.getElementById('response');
+  const registerButton = document.getElementById('registerButton');
+  const loader = document.getElementById('loader');
+
+  // Disable the button and show the loader
+  registerButton.disabled = true;
+  loader.style.display = 'inline-block';
+
+  const url = `https://graph.facebook.com/v20.0/${phoneNumberId}/register`;
+  const formData = new URLSearchParams();
+  formData.append('messaging_product', 'whatsapp');
+  formData.append('pin', pin);
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+    responseDiv.textContent = JSON.stringify(data, null, 2);
+    responseDiv.className = 'success';
+  } catch (err) {
+    responseDiv.textContent = 'Error: ' + err.message;
+    responseDiv.className = 'error';
+  }
+
+  // Enable the button and hide the loader
+  loader.style.display = 'none';
+  registerButton.disabled = false;
+  responseDiv.style.display = 'block';
+});
+    </script>
+</body>
+</html>
